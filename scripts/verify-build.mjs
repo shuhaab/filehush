@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import {readFile,readdir,lstat} from 'node:fs/promises';import {appPolicy,printPolicy,workerPolicy} from './policy.mjs';
+const html=await readFile('dist/index.html','utf8');
+assert(!/<script(?![^>]*\bsrc=)[^>]*>|<style\b|\son\w+=/i.test(html),'Inline executable content in production HTML');
+assert(!/(?:src|href)="(?:https?:)?\/\//i.test(html),'Remote runtime resource in production HTML');
+for(const file of ['qa.html','qa.js','interactions.html','interactions.js','security.html','security.js','responsive.html','responsive-app.html','responsive.js','fixtures'])assert(!(await lstat(`dist/${file}`).catch(()=>null)),`QA asset shipped: ${file}`);
+const headers=await readFile('dist/_headers','utf8');for(const policy of [appPolicy,printPolicy,workerPolicy])assert(headers.includes(policy),'Missing production policy');
+const assets=JSON.parse(await readFile('dist/vendor/assets.json','utf8'));assert(assets.length>0);
+let count=0,total=0;async function walk(folder){for(const entry of await readdir(folder)){const path=`${folder}/${entry}`,info=await lstat(path);assert(!info.isSymbolicLink(),'Symlink in static output');assert(!path.endsWith('.map'),'Source map shipped');if(info.isDirectory())await walk(path);else{count++;total+=info.size;}}}await walk('dist');
+for(const file of ['app.js','app.css','print.html','print.css','vendor/pdf.worker.min.mjs','THIRD_PARTY_LICENSES.txt'])assert((await lstat(`dist/${file}`)).isFile(),`Missing ${file}`);
+console.log(`Production artifact verified: ${count} files, ${total} bytes; no QA pages, fixtures, source maps or remote HTML resources.`);

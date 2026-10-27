@@ -1,0 +1,27 @@
+{
+  "name": "filehush",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "npm test && npm run build && node scripts/verify-build.mjs",
+    "test:browser:prepare": "node scripts/fixtures.mjs && node scripts/build.mjs --qa"
+  },
+  "dependencies": {
+    "docx": "9.14.0",
+    "docx-preview": "0.4.1",
+    "fflate": "0.8.3",
+    "papaparse": "5.7.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.4.299"
+  },
+  "devDependencies": {
+    "axe-core": "4.14.0",
+    "esbuild": "0.28.2"
+  },
+  "engines": {
+    "node": "^24.13.0 || >=26"
+  }
+}
