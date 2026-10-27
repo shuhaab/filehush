@@ -18,3 +18,5 @@ verification/
 
 .openai/
 .DS_Store
+
+!/README.md
